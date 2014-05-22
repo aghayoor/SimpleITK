@@ -210,6 +210,40 @@ ImageRegistrationMethod::SetOptimizerAsGradientDescent( double learningRate,
 }
 
 ImageRegistrationMethod::Self&
+  ImageRegistrationMethod::SetOptimizerAsLBFGSB( double gradientConvergenceTolerance,
+                                                 unsigned int maximumNumberOfIterations,
+                                                 unsigned int maximumNumberOfCorrections,
+                                                 unsigned int maximumNumberOfFunctionEvaluations,
+                                                 double costFunctionConvergenceFactor,
+                                                 double lowerBound,
+                                                 double upperBound)
+{
+  m_OptimizerType = LBFGSB;
+  m_OptimizerGradientConvergenceTolerance = gradientConvergenceTolerance;
+  m_OptimizerNumberOfIterations = maximumNumberOfIterations;
+  m_OptimizerMaximumNumberOfCorrections = maximumNumberOfCorrections;
+  m_OptimizerMaximumNumberOfFunctionEvaluations = maximumNumberOfFunctionEvaluations;
+  m_OptimizerCostFunctionConvergenceFactor = costFunctionConvergenceFactor;
+  m_OptimizerLowerBound = lowerBound;
+  m_OptimizerUpperBound = upperBound;
+  return *this;
+}
+
+ImageRegistrationMethod::Self&
+  ImageRegistrationMethod::SetOptimizerAsAmoeba( double simplexDelta,
+                                                 double parametersConvergenceTolerance,
+                                                 double functionConvergenceTolerance,
+                                                 unsigned int numberOfIterations)
+{
+  m_OptimizerType = Amoeba;
+  m_OptimizerSimplexDelta = simplexDelta;
+  m_OptimizerParametersConvergenceTolerance = parametersConvergenceTolerance;
+  m_OptimizerFunctionConvergenceTolerance = functionConvergenceTolerance;
+  m_OptimizerNumberOfIterations = numberOfIterations;
+  return *this;
+}
+
+ImageRegistrationMethod::Self&
 ImageRegistrationMethod::SetOptimizerScales( const std::vector<double> &scales)
 {
   this->m_OptimizerScalesType = Manual;
@@ -430,6 +464,15 @@ Transform ImageRegistrationMethod::ExecuteInternal ( const Image &inFixed, const
   typedef itk::ImageRegistrationMethodv4Generic<FixedImageType, MovingImageType>  RegistrationType;
   typename RegistrationType::Pointer   registration  = RegistrationType::New();
 
+    typename RegistrationType::InitialTransformType *itkTx;
+  if ( !(itkTx = dynamic_cast<typename RegistrationType::InitialTransformType *>(this->m_Transform.GetITKBase())) )
+    {
+    sitkExceptionMacro( "Unexpected error converting transform! Possible miss matching dimensions!" );
+    }
+
+  const bool ReuseExternalTransform = true;
+  registration->SetTransform( itkTx, ReuseExternalTransform );
+
   // Get the pointer to the ITK image contained in image1
   typename FixedImageType::ConstPointer fixed = this->CastImageToITK<FixedImageType>( inFixed );
   typename MovingImageType::ConstPointer moving = this->CastImageToITK<MovingImageType>( inMoving );
@@ -520,7 +563,7 @@ Transform ImageRegistrationMethod::ExecuteInternal ( const Image &inFixed, const
   registration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
   registration->SetSmoothingSigmasAreSpecifiedInPhysicalUnits(m_SmoothingSigmasAreSpecifiedInPhysicalUnits);
 
-  typename  itk::ObjectToObjectOptimizerBaseTemplate<double>::Pointer optimizer = this->CreateOptimizer();
+  typename  itk::ObjectToObjectOptimizerBaseTemplate<double>::Pointer optimizer = this->CreateOptimizer( itkTx->GetNumberOfParameters() );
   optimizer->UnRegister();
 
   optimizer->SetNumberOfThreads(this->GetNumberOfThreads());
@@ -541,15 +584,6 @@ Transform ImageRegistrationMethod::ExecuteInternal ( const Image &inFixed, const
     std::copy( m_OptimizerScales.begin(), m_OptimizerScales.end(), scales.begin() );
     optimizer->SetScales(scales);
     }
-
-  typename RegistrationType::InitialTransformType *itkTx;
-  if ( !(itkTx = dynamic_cast<typename RegistrationType::InitialTransformType *>(this->m_Transform.GetITKBase())) )
-    {
-    sitkExceptionMacro( "Unexpected error converting transform! Possible miss matching dimensions!" );
-    }
-
-  const bool ReuseExternalTransform = true;
-  registration->SetTransform( itkTx, ReuseExternalTransform );
 
   this->m_ActiveOptimizer = optimizer;
   this->PreUpdate( registration.GetPointer() );
