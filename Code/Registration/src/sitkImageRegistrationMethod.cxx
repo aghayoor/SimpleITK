@@ -445,6 +445,15 @@ Transform ImageRegistrationMethod::ExecuteInternal ( const Image &inFixed, const
   typedef itk::ImageRegistrationMethodv4Generic<FixedImageType, MovingImageType>  RegistrationType;
   typename RegistrationType::Pointer   registration  = RegistrationType::New();
 
+    typename RegistrationType::InitialTransformType *itkTx;
+  if ( !(itkTx = dynamic_cast<typename RegistrationType::InitialTransformType *>(this->m_Transform.GetITKBase())) )
+    {
+    sitkExceptionMacro( "Unexpected error converting transform! Possible miss matching dimensions!" );
+    }
+
+  const bool ReuseExternalTransform = true;
+  registration->SetTransform( itkTx, ReuseExternalTransform );
+
   // Get the pointer to the ITK image contained in image1
   typename FixedImageType::ConstPointer fixed = this->CastImageToITK<FixedImageType>( inFixed );
   typename MovingImageType::ConstPointer moving = this->CastImageToITK<MovingImageType>( inMoving );
@@ -530,7 +539,7 @@ Transform ImageRegistrationMethod::ExecuteInternal ( const Image &inFixed, const
   registration->SetSmoothingSigmasPerLevel( smoothingSigmasPerLevel );
   registration->SetSmoothingSigmasAreSpecifiedInPhysicalUnits(m_SmoothingSigmasAreSpecifiedInPhysicalUnits);
 
-  typename  itk::ObjectToObjectOptimizerBaseTemplate<double>::Pointer optimizer = this->CreateOptimizer();
+  typename  itk::ObjectToObjectOptimizerBaseTemplate<double>::Pointer optimizer = this->CreateOptimizer( itkTx->GetNumberOfParameters() );
   optimizer->UnRegister();
 
   registration->SetOptimizer( optimizer );
@@ -549,15 +558,6 @@ Transform ImageRegistrationMethod::ExecuteInternal ( const Image &inFixed, const
     std::copy( m_OptimizerScales.begin(), m_OptimizerScales.end(), scales.begin() );
     optimizer->SetScales(scales);
     }
-
-  typename RegistrationType::InitialTransformType *itkTx;
-  if ( !(itkTx = dynamic_cast<typename RegistrationType::InitialTransformType *>(this->m_Transform.GetITKBase())) )
-    {
-    sitkExceptionMacro( "Unexpected error converting transform! Possible miss matching dimensions!" );
-    }
-
-  const bool ReuseExternalTransform = true;
-  registration->SetTransform( itkTx, ReuseExternalTransform );
 
   this->m_ActiveOptimizer = optimizer;
   this->PreUpdate( registration.GetPointer() );

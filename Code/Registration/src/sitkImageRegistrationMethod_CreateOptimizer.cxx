@@ -29,7 +29,7 @@ namespace simple
 
 
   itk::ObjectToObjectOptimizerBaseTemplate<double>*
-  ImageRegistrationMethod::CreateOptimizer( )
+  ImageRegistrationMethod::CreateOptimizer( unsigned int numberOfTransformParameters )
   {
     typedef double InternalComputationValueType;
 
@@ -91,9 +91,9 @@ namespace simple
         flag |= UPPERBOUND;
         }
 
-      _OptimizerType::BoundSelectionType boundSelection(/* numberOfTransformParameters */);
-      _OptimizerType::BoundValueType lowerBound(/* numberOfTransformParameters */);
-      _OptimizerType::BoundValueType upperBound(/* numberOfTransformParameters */);
+      _OptimizerType::BoundSelectionType boundSelection( numberOfTransformParameters );
+      _OptimizerType::BoundValueType lowerBound( numberOfTransformParameters );
+      _OptimizerType::BoundValueType upperBound( numberOfTransformParameters );
 
       boundSelection.Fill( sitkToITK[flag] );
       lowerBound.Fill( this->m_OptimizerUpperBound );

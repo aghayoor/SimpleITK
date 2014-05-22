@@ -150,7 +150,7 @@ namespace simple
     template<class TImage>
     Transform ExecuteInternal ( const Image &fixed, const Image &moving );
 
-    itk::ObjectToObjectOptimizerBaseTemplate<double> *CreateOptimizer( );
+    itk::ObjectToObjectOptimizerBaseTemplate<double> *CreateOptimizer( unsigned int numberOfTransformParameters );
 
     template<unsigned int VDimension>
       itk::SpatialObject<VDimension> *CreateSpatialObjectMask(const Image &mask);
