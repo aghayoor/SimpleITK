@@ -204,6 +204,27 @@ ImageRegistrationMethod::SetOptimizerAsGradientDescent( double learningRate, uns
 }
 
 ImageRegistrationMethod::Self&
+  ImageRegistrationMethod::SetOptimizerAsLBFGSB( double gradientConvergenceTolerance = 1e-5,
+                                                unsigned int maximumNumberOfIterations = 500,
+                                                unsigned int maximumNumberOfCorrections = 5,
+                                                unsigned int maximumNumberOfFunctionEvaluations = 2000,
+                                                double costFunctionConvergenceFactor = 1e+7,
+                                                double upperBound = std::numeric_limits<double>::max(),
+                                                double lowerBound = std::numeric_limits<double>::min())
+{
+  m_OptimizerType = LBFGSB;
+  m_OptimizerGradientConvergenceTolerance = gradientConvergenceTolerance;
+  m_OptimizerMaximumNumberOfIterations = maximumNumberOfIterations;
+  m_OptimizerMaximumNumberOfCorrections = maximumNumberOfCorrections;
+  m_OptimizerMaximumNumberOfFunctionEvaluations = maximumNumberOfFunctionEvaluations;
+  m_OptimizerCostFunctionConvergenceFactor = costFunctionConvergenceFactor;
+  m_OptimizerUpperBound = upperBound;
+  m_OptimizerLowerBound = lowerBound;
+
+  return *this;
+}
+
+ImageRegistrationMethod::Self&
 ImageRegistrationMethod::SetOptimizerScales( const std::vector<double> &scales)
 {
   this->m_OptimizerScalesType = Manual;

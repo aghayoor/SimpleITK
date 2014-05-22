@@ -91,14 +91,20 @@ namespace simple
     Self& SetOptimizerAsGradientDescent( double learningRate,
                                          unsigned int numberOfIterations );
 
+    Self& SetOptimizerAsLBFGSB(double gradientConvergenceTolerance = 1e-5,
+                               unsigned int maximumNumberOfIterations = 500,
+                               unsigned int maximumNumberOfCorrections = 5,
+                               unsigned int maximumNumberOfFunctionEvaluations = 2000,
+                               double costFunctionConvergenceFactor = 1e+7,
+                               double upperBound = std::numeric_limits<double>::max(),
+                               double lowerBound = std::numeric_limits<double>::min());
+
     Self& SetOptimizerScales( const std::vector<double> &scales );
     Self& SetOptimizerScalesFromJacobian( unsigned int centralRegionRadius = 5 );
     Self& SetOptimizerScalesFromIndexShift( unsigned int centralRegionRadius = 5,
                                            double smallParameterVariation =  0.01 );
     Self& SetOptimizerScalesFromPhysicalShift( unsigned int centralRegionRadius = 5,
                                               double smallParameterVariation =  0.01 );
-
-
 
     Self& SetMetricFixedMask( const Image &binaryMask );
 
@@ -180,7 +186,8 @@ namespace simple
 
     // optimizer
     enum OptimizerType { RegularStepGradientDescent,
-                         GradientDescent
+                         GradientDescent,
+                         LBFGSB
     };
     OptimizerType m_OptimizerType;
     double m_OptimizerLearningRate;
