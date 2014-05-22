@@ -70,43 +70,38 @@ namespace simple
       _OptimizerType::Pointer      optimizer =  _OptimizerType::New();
 
       optimizer->SetGradientConvergenceTolerance( this->m_OptimizerGradientConvergenceTolerance );
-      optimizer->SetMaximumNumberOfIterations( this->m_OptimizerMaximumNumberOfIterations );
+      optimizer->SetMaximumNumberOfIterations( this->m_OptimizerNumberOfIterations );
       optimizer->SetMaximumNumberOfCorrections( this->m_OptimizerMaximumNumberOfCorrections  );
       optimizer->SetMaximumNumberOfFunctionEvaluations( this->m_OptimizerMaximumNumberOfFunctionEvaluations );
       optimizer->SetCostFunctionConvergenceFactor( this->m_OptimizerCostFunctionConvergenceFactor );
 
-      _OptimizerType::BoundSelectionType boundSelection(/* numberOfTransformParameters */);
-      _OptimizerType::BoundValueType upperBound(/* numberOfTransformParameters */);
-      _OptimizerType::BoundValueType lowerBound(/* numberOfTransformParameters */);
-      if ( this->m_OptimizerUpperBound != std::numeric_limits<double>::max() &&
-           this->m_OptimizerLowerBound != std::numeric_limits<double>::min() )
-        {
-        upperBound.Fill( this->m_OptimizerUpperBound );
-        lowerBound.Fill( this->m_OptimizerLowerBound );
-        boundSelection.Fill( 2 ); // Optimizer has both Lower and Upper bounds
-        }
-      else if ( this->m_OptimizerUpperBound != std::numeric_limits<double>::max() )
-        {
-        upperBound.Fill( this->m_OptimizerUpperBound );
-        lowerBound.Fill( 0 );
-        boundSelection.Fill( 3 ); // Optimizer has only Upper bounds
-        }
-      else if ( this->m_OptimizerLowerBound != std::numeric_limits<double>::min() )
-        {
-        upperBound.Fill( 0 );
-        lowerBound.Fill( this->m_OptimizerLowerBound );
-        boundSelection.Fill( 1 ); // Optimizer has only Lower bounds
-        }
-      else
-        {
-        upperBound.Fill( 0 );
-        lowerBound.Fill( 0 );
-        boundSelection.Fill( 0 ); // Optimizer is unbounded
-        }
-      optimizer->SetBoundSelection( boundSelect );
-      optimizer->SetUpperBound( upperBound );
-      optimizer->SetLowerBound( lowerBound );
+      #define NOBOUND     0 // 00
+      #define LOWERBOUND  1 // 01
+      #define UPPERBOUND  2 // 10
+      #define BOTHBOUND   3 // 11
 
+      unsigned char flag = NOBOUND;
+      const unsigned int sitkToITK[] = {0,1,3,2};
+      if ( this->m_OptimizerLowerBound != std::numeric_limits<double>::min() )
+        {
+        flag |= LOWERBOUND;
+        }
+      if ( this->m_OptimizerUpperBound != std::numeric_limits<double>::max() )
+        {
+        flag |= UPPERBOUND;
+        }
+
+      _OptimizerType::BoundSelectionType boundSelection(/* numberOfTransformParameters */);
+      _OptimizerType::BoundValueType lowerBound(/* numberOfTransformParameters */);
+      _OptimizerType::BoundValueType upperBound(/* numberOfTransformParameters */);
+
+      boundSelection.Fill( sitkToITK[flag] );
+      lowerBound.Fill( this->m_OptimizerUpperBound );
+      upperBound.Fill( this->m_OptimizerUpperBound );
+
+      optimizer->SetBoundSelection(  );
+      optimizer->SetLowerBound( lowerBound  );
+      optimizer->SetUpperBound( upperBound  );
       optimizer->Register();
 
       this->m_pfGetMetricValue = nsstd::bind(&_OptimizerType::GetValue,optimizer);

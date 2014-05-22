@@ -96,8 +96,8 @@ namespace simple
                                unsigned int maximumNumberOfCorrections = 5,
                                unsigned int maximumNumberOfFunctionEvaluations = 2000,
                                double costFunctionConvergenceFactor = 1e+7,
-                               double upperBound = std::numeric_limits<double>::max(),
-                               double lowerBound = std::numeric_limits<double>::min());
+                               double lowerBound = std::numeric_limits<double>::min(),
+                               double upperBound = std::numeric_limits<double>::max());
 
     Self& SetOptimizerScales( const std::vector<double> &scales );
     Self& SetOptimizerScalesFromJacobian( unsigned int centralRegionRadius = 5 );
@@ -194,6 +194,12 @@ namespace simple
     double m_OptimizerMinimumStepLength;
     unsigned int m_OptimizerNumberOfIterations;
     double m_OptimizerRelaxationFactor;
+    double m_OptimizerGradientConvergenceTolerance;
+    unsigned int m_OptimizerMaximumNumberOfCorrections;
+    unsigned int m_OptimizerMaximumNumberOfFunctionEvaluations;
+    double m_OptimizerCostFunctionConvergenceFactor;
+    double m_OptimizerLowerBound;
+    double m_OptimizerUpperBound;
 
     enum OptimizerScalesType {
       Manual,
