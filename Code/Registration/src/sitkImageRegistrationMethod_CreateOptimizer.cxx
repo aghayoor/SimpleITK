@@ -7,6 +7,7 @@
 #include "itkQuasiNewtonOptimizerv4.h"
 #include "itkAmoebaOptimizerv4.h"
 #include "itkExhaustiveOptimizer.h"
+#include "itkOnePlusOneEvolutionaryOptimizer.h"
 
 
 namespace {
@@ -198,6 +199,30 @@ namespace simple
       optimizer->SetNumberOfSteps( sitkSTLVectorToITKArray<_OptimizerType::StepsType::ValueType>(this->m_OptimizerNumberOfSteps));
 
       this->m_pfGetMetricValue = nsstd::bind(&_OptimizerType::GetCurrentValue,optimizer);
+      this->m_pfGetOptimizerIteration = nsstd::bind(&_OptimizerType::GetCurrentIteration,optimizer);
+      this->m_pfGetOptimizerPosition = nsstd::bind(&_GetOptimizerPosition,optimizer);
+
+      optimizer->Register();
+      return optimizer.GetPointer();
+      }
+    else if ( m_OptimizerType == OnePlusOneEvolutionary )
+      {
+      typedef itk::OnePlusOneEvolutionaryOptimizer _OptimizerType;
+      _OptimizerType::Pointer      optimizer     = _OptimizerType::New();
+
+      optimizer->SetMaximumIteration( this->m_OptimizerNumberOfIterations  );
+
+      typedef itk::Statistics::NormalVariateGenerator  GeneratorType;
+      GeneratorType::Pointer generator = GeneratorType::New();
+      generator->Initialize(12345);
+      optimizer->SetNormalVariateGenerator( generator );
+
+      optimizer->Initialize( this->m_OptimizerInitialRadius );
+      optimizer->SetEpsilon( this->m_OptimizerEpsilon );
+      optimizer->SetGrowthFactor( this->m_OptimizerGrowthFactor );
+      optimizer->SetShrinkFactor( this->m_OptimizerShrinkFactor );
+
+      this->m_pfGetMetricValue = nsstd::bind(&_OptimizerType::GetValue,optimizer);
       this->m_pfGetOptimizerIteration = nsstd::bind(&_OptimizerType::GetCurrentIteration,optimizer);
       this->m_pfGetOptimizerPosition = nsstd::bind(&_GetOptimizerPosition,optimizer);
 

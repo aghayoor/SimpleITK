@@ -318,6 +318,22 @@ ImageRegistrationMethod::SetOptimizerAsExhaustive( double stepLength,
 }
 
 ImageRegistrationMethod::Self&
+ImageRegistrationMethod::SetOptimizerAsOnePlusOneEvolutionary( double initialRadius,
+                                                               double epsilon,
+                                                               unsigned int numberOfIteratons,
+                                                               double growthFactor,
+                                                               double shrinkFactor )
+{
+  m_OptimizerType = OnePlusOneEvolutionary;
+  m_OptimizerInitialRadius = initialRadius;
+  m_OptimizerEpsilon = epsilon;
+  m_OptimizerNumberOfIterations = numberOfIteratons;
+  m_OptimizerGrowthFactor = growthFactor;
+  m_OptimizerShrinkFactor = shrinkFactor;
+  return *this;
+}
+
+ImageRegistrationMethod::Self&
 ImageRegistrationMethod::SetOptimizerScales( const std::vector<double> &scales)
 {
   this->m_OptimizerScalesType = Manual;

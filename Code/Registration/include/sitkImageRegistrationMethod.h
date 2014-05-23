@@ -132,6 +132,12 @@ namespace simple
     Self& SetOptimizerAsExhaustive( double stepLength,
                                     const std::vector<unsigned int> &numberOfSteps );
 
+    Self& SetOptimizerAsOnePlusOneEvolutionary( double initialRadius,
+                                                double epsilon=1.5e-4,
+                                                unsigned int numberOfIterations=100,
+                                                double growthFactor=1.05,
+                                                double shrinkFactor=0.9878);
+
     Self& SetOptimizerScales( const std::vector<double> &scales );
     Self& SetOptimizerScalesFromJacobian( unsigned int centralRegionRadius = 5 );
     Self& SetOptimizerScalesFromIndexShift( unsigned int centralRegionRadius = 5,
@@ -225,7 +231,8 @@ namespace simple
                          LBFGSB,
                          QuasiNewton,
                          Amoeba,
-                         Exhaustive
+                         Exhaustive,
+                         OnePlusOneEvolutionary
     };
     OptimizerType m_OptimizerType;
     double m_OptimizerLearningRate;
@@ -251,6 +258,10 @@ namespace simple
     double m_OptimizerFunctionConvergenceTolerance;
     std::vector<unsigned int> m_OptimizerNumberOfSteps;
     double m_OptimizerStepLength;
+    double m_OptimizerInitialRadius;
+    double m_OptimizerEpsilon;
+    double m_OptimizerGrowthFactor;
+    double m_OptimizerShrinkFactor;
 
     enum OptimizerScalesType {
       Manual,
