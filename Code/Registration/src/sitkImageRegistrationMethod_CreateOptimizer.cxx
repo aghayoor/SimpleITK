@@ -1,13 +1,14 @@
 #include "sitkImageRegistrationMethod.h"
 
+#include "itkNormalVariateGenerator.h"
 #include "itkConjugateGradientLineSearchOptimizerv4.h"
 #include "itkGradientDescentOptimizerv4.h"
 #include "itkRegularStepGradientDescentOptimizerv4.h"
 #include "itkLBFGSBOptimizerv4.h"
 #include "itkQuasiNewtonOptimizerv4.h"
 #include "itkAmoebaOptimizerv4.h"
-#include "itkExhaustiveOptimizer.h"
-#include "itkOnePlusOneEvolutionaryOptimizer.h"
+#include "itkExhaustiveOptimizerv4.h"
+#include "itkOnePlusOneEvolutionaryOptimizerv4.h"
 #include "itkPowellOptimizerv4.h"
 
 
@@ -32,7 +33,13 @@ namespace itk
 namespace simple
 {
 
-
+  template< typename TValue, typename TType>
+  itk::Array<TValue> sitkSTLVectorToITKArray( const std::vector< TType > & in )
+  {
+    itk::Array<TValue> out(in.size());
+    std::copy(in.begin(), in.end(), out.begin());
+    return out;
+  }
 
   itk::ObjectToObjectOptimizerBaseTemplate<double>*
   ImageRegistrationMethod::CreateOptimizer( unsigned int numberOfTransformParameters )
@@ -172,9 +179,10 @@ namespace simple
       this->m_pfGetMetricValue = nsstd::bind(&_OptimizerType::GetCurrentMetricValue,optimizer);
       this->m_pfGetOptimizerIteration = nsstd::bind(&_OptimizerType::GetCurrentIteration,optimizer);
       this->m_pfGetOptimizerPosition = nsstd::bind(&PositionOptimizerCustomCast::CustomCast,optimizer);
+      }
     else if( m_OptimizerType == Amoeba )
       {
-      typedef itk::AmoebaOptimizer _OptimizerType;
+      typedef itk::AmoebaOptimizerv4 _OptimizerType;
       _OptimizerType::Pointer      optimizer     = _OptimizerType::New();
 
       optimizer->SetMaximumNumberOfIterations( this->m_OptimizerNumberOfIterations  );
@@ -185,30 +193,30 @@ namespace simple
       simplexDelta.Fill( this->m_OptimizerSimplexDelta );
       optimizer->SetInitialSimplexDelta( simplexDelta );
 
-      this->m_pfGetMetricValue = nsstd::bind(&_OptimizerType::GetCachedValue,optimizer);
-      this->m_pfGetOptimizerPosition = nsstd::bind(&_GetOptimizerPosition_Vnl,optimizer);
+      this->m_pfGetMetricValue = nsstd::bind(&_OptimizerType::GetValue,optimizer);
+      this->m_pfGetOptimizerPosition = nsstd::bind(&PositionOptimizerCustomCast::CustomCast,optimizer);
 
       optimizer->Register();
       return optimizer.GetPointer();
       }
     else if ( m_OptimizerType == Exhaustive )
       {
-      typedef itk::ExhaustiveOptimizer _OptimizerType;
+      typedef itk::ExhaustiveOptimizerv4<double> _OptimizerType;
       _OptimizerType::Pointer      optimizer     = _OptimizerType::New();
 
       optimizer->SetStepLength( this->m_OptimizerStepLength );
       optimizer->SetNumberOfSteps( sitkSTLVectorToITKArray<_OptimizerType::StepsType::ValueType>(this->m_OptimizerNumberOfSteps));
 
       this->m_pfGetMetricValue = nsstd::bind(&_OptimizerType::GetCurrentValue,optimizer);
-      this->m_pfGetOptimizerIteration = nsstd::bind(&_OptimizerType::GetCurrentIteration,optimizer);
-      this->m_pfGetOptimizerPosition = nsstd::bind(&_GetOptimizerPosition,optimizer);
+      //this->m_pfGetOptimizerIteration = nsstd::bind(&_OptimizerType::GetCurrentIteration,optimizer); // It will come to ITK
+      this->m_pfGetOptimizerPosition = nsstd::bind(&PositionOptimizerCustomCast::CustomCast,optimizer);
 
       optimizer->Register();
       return optimizer.GetPointer();
       }
     else if ( m_OptimizerType == OnePlusOneEvolutionary )
       {
-      typedef itk::OnePlusOneEvolutionaryOptimizer _OptimizerType;
+      typedef itk::OnePlusOneEvolutionaryOptimizerv4<double> _OptimizerType;
       _OptimizerType::Pointer      optimizer     = _OptimizerType::New();
 
       optimizer->SetMaximumIteration( this->m_OptimizerNumberOfIterations  );
@@ -225,20 +233,24 @@ namespace simple
 
       this->m_pfGetMetricValue = nsstd::bind(&_OptimizerType::GetValue,optimizer);
       this->m_pfGetOptimizerIteration = nsstd::bind(&_OptimizerType::GetCurrentIteration,optimizer);
-      this->m_pfGetOptimizerPosition = nsstd::bind(&_GetOptimizerPosition,optimizer);
+      this->m_pfGetOptimizerPosition = nsstd::bind(&PositionOptimizerCustomCast::CustomCast,optimizer);
 
       optimizer->Register();
       return optimizer.GetPointer();
       }
     else if ( m_OptimizerType == Powell )
       {
-      typedef itk::PowellOptimizerv4 _OptimizerType;
+      typedef itk::PowellOptimizerv4<double> _OptimizerType;
       _OptimizerType::Pointer      optimizer     = _OptimizerType::New();
 
       optimizer->SetStepLength( this->m_OptimizerStepLength );
       optimizer->SetStepTolerance( this->m_StepTolerance );
       optimizer->SetValueTolerance( this->m_ValueTolerance );
       optimizer->SetMaximumIteration( this->m_OptimizerNumberOfIterations );
+
+      this->m_pfGetMetricValue = nsstd::bind(&_OptimizerType::GetValue,optimizer);
+      this->m_pfGetOptimizerIteration = nsstd::bind(&_OptimizerType::GetCurrentIteration,optimizer);
+      this->m_pfGetOptimizerPosition = nsstd::bind(&PositionOptimizerCustomCast::CustomCast,optimizer);
       }
     else
       {

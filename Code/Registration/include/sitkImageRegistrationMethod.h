@@ -109,8 +109,6 @@ namespace simple
                                                    double lineSearchUpperLimit = 5.0,
                                                    double lineSearchEpsilon = 0.01,
                                                    unsigned int lineSearchMaximumIterations = 20 );
-
-
     Self& SetOptimizerAsLBFGSB(double gradientConvergenceTolerance = 1e-5,
                                unsigned int maximumNumberOfIterations = 500,
                                unsigned int maximumNumberOfCorrections = 5,
@@ -123,21 +121,17 @@ namespace simple
                                      double convergenceMinimumValue = 1e-6,
                                      unsigned int convergenceWindowSize = 10,
                                      unsigned int maximumIterationsWithoutProgress = 30 );
-
     Self& SetOptimizerAsAmoeba(double simplexDelta,
                                double parametersConvergenceTolerance=1e-8,
                                double functionConvergenceTolerance=1e-4,
                                unsigned int numberOfIterations=100);
-
     Self& SetOptimizerAsExhaustive( double stepLength,
                                     const std::vector<unsigned int> &numberOfSteps );
-
     Self& SetOptimizerAsOnePlusOneEvolutionary( double initialRadius,
                                                 double epsilon=1.5e-4,
                                                 unsigned int numberOfIterations=100,
                                                 double growthFactor=1.05,
                                                 double shrinkFactor=0.9878);
-
     Self& SetOptimizerAsPowell( double stepLength = 10,
                                 double stepTolerance = 0.01,
                                 double valueTolerance = 0.1,
