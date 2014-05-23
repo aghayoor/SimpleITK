@@ -138,6 +138,11 @@ namespace simple
                                                 double growthFactor=1.05,
                                                 double shrinkFactor=0.9878);
 
+    Self& SetOptimizerAsPowell( double stepLength = 10,
+                                double stepTolerance = 0.01,
+                                double valueTolerance = 0.1,
+                                unsigned int numberOfIterations = 100 );
+
     Self& SetOptimizerScales( const std::vector<double> &scales );
     Self& SetOptimizerScalesFromJacobian( unsigned int centralRegionRadius = 5 );
     Self& SetOptimizerScalesFromIndexShift( unsigned int centralRegionRadius = 5,
@@ -232,7 +237,8 @@ namespace simple
                          QuasiNewton,
                          Amoeba,
                          Exhaustive,
-                         OnePlusOneEvolutionary
+                         OnePlusOneEvolutionary,
+                         Powell
     };
     OptimizerType m_OptimizerType;
     double m_OptimizerLearningRate;
@@ -262,6 +268,8 @@ namespace simple
     double m_OptimizerEpsilon;
     double m_OptimizerGrowthFactor;
     double m_OptimizerShrinkFactor;
+	  double m_StepTolerance;
+	  double m_ValueTolerance;
 
     enum OptimizerScalesType {
       Manual,

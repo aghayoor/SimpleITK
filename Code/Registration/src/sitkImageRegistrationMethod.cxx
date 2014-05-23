@@ -334,6 +334,20 @@ ImageRegistrationMethod::SetOptimizerAsOnePlusOneEvolutionary( double initialRad
 }
 
 ImageRegistrationMethod::Self&
+ImageRegistrationMethod::SetOptimizerAsPowell( double stepLength,
+                                               double stepTolerance,
+                                               double valueTolerance,
+                                               unsigned int numberOfIterations )
+{
+  m_OptimizerType = Powell;
+  m_OptimizerStepLength = stepLength;
+  m_StepTolerance = stepTolerance;
+  m_ValueTolerance = valueTolerance;
+  m_OptimizerNumberOfIterations = numberOfIteratons;
+  return *this;
+}
+
+ImageRegistrationMethod::Self&
 ImageRegistrationMethod::SetOptimizerScales( const std::vector<double> &scales)
 {
   this->m_OptimizerScalesType = Manual;

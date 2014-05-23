@@ -8,6 +8,7 @@
 #include "itkAmoebaOptimizerv4.h"
 #include "itkExhaustiveOptimizer.h"
 #include "itkOnePlusOneEvolutionaryOptimizer.h"
+#include "itkPowellOptimizerv4.h"
 
 
 namespace {
@@ -228,6 +229,16 @@ namespace simple
 
       optimizer->Register();
       return optimizer.GetPointer();
+      }
+    else if ( m_OptimizerType == Powell )
+      {
+      typedef itk::PowellOptimizerv4 _OptimizerType;
+      _OptimizerType::Pointer      optimizer     = _OptimizerType::New();
+
+      optimizer->SetStepLength( this->m_OptimizerStepLength );
+      optimizer->SetStepTolerance( this->m_StepTolerance );
+      optimizer->SetValueTolerance( this->m_ValueTolerance );
+      optimizer->SetMaximumIteration( this->m_OptimizerNumberOfIterations );
       }
     else
       {
