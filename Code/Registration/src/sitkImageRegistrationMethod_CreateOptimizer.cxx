@@ -6,6 +6,7 @@
 #include "itkLBFGSBOptimizerv4.h"
 #include "itkQuasiNewtonOptimizerv4.h"
 #include "itkAmoebaOptimizerv4.h"
+#include "itkExhaustiveOptimizer.h"
 
 
 namespace {
@@ -184,6 +185,21 @@ namespace simple
 
       this->m_pfGetMetricValue = nsstd::bind(&_OptimizerType::GetCachedValue,optimizer);
       this->m_pfGetOptimizerPosition = nsstd::bind(&_GetOptimizerPosition_Vnl,optimizer);
+
+      optimizer->Register();
+      return optimizer.GetPointer();
+      }
+    else if ( m_OptimizerType == Exhaustive )
+      {
+      typedef itk::ExhaustiveOptimizer _OptimizerType;
+      _OptimizerType::Pointer      optimizer     = _OptimizerType::New();
+
+      optimizer->SetStepLength( this->m_OptimizerStepLength );
+      optimizer->SetNumberOfSteps( sitkSTLVectorToITKArray<_OptimizerType::StepsType::ValueType>(this->m_OptimizerNumberOfSteps));
+
+      this->m_pfGetMetricValue = nsstd::bind(&_OptimizerType::GetCurrentValue,optimizer);
+      this->m_pfGetOptimizerIteration = nsstd::bind(&_OptimizerType::GetCurrentIteration,optimizer);
+      this->m_pfGetOptimizerPosition = nsstd::bind(&_GetOptimizerPosition,optimizer);
 
       optimizer->Register();
       return optimizer.GetPointer();

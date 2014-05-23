@@ -129,6 +129,9 @@ namespace simple
                                double functionConvergenceTolerance=1e-4,
                                unsigned int numberOfIterations=100);
 
+    Self& SetOptimizerAsExhaustive( double stepLength,
+                                    const std::vector<unsigned int> &numberOfSteps );
+
     Self& SetOptimizerScales( const std::vector<double> &scales );
     Self& SetOptimizerScalesFromJacobian( unsigned int centralRegionRadius = 5 );
     Self& SetOptimizerScalesFromIndexShift( unsigned int centralRegionRadius = 5,
@@ -221,7 +224,8 @@ namespace simple
                          GradientDescentLineSearch,
                          LBFGSB,
                          QuasiNewton,
-                         Amoeba
+                         Amoeba,
+                         Exhaustive
     };
     OptimizerType m_OptimizerType;
     double m_OptimizerLearningRate;
@@ -245,6 +249,8 @@ namespace simple
     double m_OptimizerSimplexDelta;
     double m_OptimizerParametersConvergenceTolerance;
     double m_OptimizerFunctionConvergenceTolerance;
+    std::vector<unsigned int> m_OptimizerNumberOfSteps;
+    double m_OptimizerStepLength;
 
     enum OptimizerScalesType {
       Manual,
