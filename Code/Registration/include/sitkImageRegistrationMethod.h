@@ -124,6 +124,11 @@ namespace simple
                                      unsigned int convergenceWindowSize = 10,
                                      unsigned int maximumIterationsWithoutProgress = 30 );
 
+    Self& SetOptimizerAsAmoeba(double simplexDelta,
+                               double parametersConvergenceTolerance=1e-8,
+                               double functionConvergenceTolerance=1e-4,
+                               unsigned int numberOfIterations=100);
+
     Self& SetOptimizerScales( const std::vector<double> &scales );
     Self& SetOptimizerScalesFromJacobian( unsigned int centralRegionRadius = 5 );
     Self& SetOptimizerScalesFromIndexShift( unsigned int centralRegionRadius = 5,
@@ -215,7 +220,8 @@ namespace simple
                          GradientDescent,
                          GradientDescentLineSearch,
                          LBFGSB,
-                         QuasiNewton
+                         QuasiNewton,
+                         Amoeba
     };
     OptimizerType m_OptimizerType;
     double m_OptimizerLearningRate;
@@ -236,6 +242,9 @@ namespace simple
     double m_OptimizerLowerBound;
     double m_OptimizerUpperBound;
     unsigned int m_OptimizerMaximumIterationsWithoutProgress;
+    double m_OptimizerSimplexDelta;
+    double m_OptimizerParametersConvergenceTolerance;
+    double m_OptimizerFunctionConvergenceTolerance;
 
     enum OptimizerScalesType {
       Manual,
